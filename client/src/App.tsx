@@ -72,11 +72,45 @@ const App = () => {
     if (!selectedNote) {
       return;
     }
-  }
+
+    const updatedNote: Note = {
+      id: selectedNote.id,
+      title: title,
+      content: content,
+    };
+
+    const updatedNotesList = notes.map((note) =>
+      note.id === selectedNote.id ? updatedNote : note
+    );
+
+    setNotes(updatedNotesList);
+    setTitle("");
+    setContent("");
+    setSelectedNote(null);
+  };
+
+  const handleCancel = () => {
+    setTitle("");
+    setContent("");
+    setSelectedNote(null);
+  };
+
+  const deleteNote = (event: React.MouseEvent, noteid: number) => {
+    event.stopPropagation();
+
+    const updatedNotes = notes.filter((note) => note.id !== noteid);
+
+    setNotes(updatedNotes);
+  };
 
   return (
     <div className="app-container">
-      <form className="note-form" onSubmit={(event) => handleAddNote(event)}>
+      <form
+        className="note-form"
+        onSubmit={(event) =>
+          selectedNote ? handleUpdateNote(event) : handleAddNote(event)
+        }
+      >
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
@@ -91,13 +125,20 @@ const App = () => {
           required
         />
 
-        <button type="submit">Add Note</button>
+        {selectedNote ? (
+          <div className="edit-buttons">
+            <button type="submit">Save</button>
+            <button onClick={handleCancel}>Cancel</button>
+          </div>
+        ) : (
+          <button type="submit">Add Note</button>
+        )}
       </form>
       <div className="notes-grid">
         {notes.map((note) => (
           <div className="note-item" onClick={() => handleNoteClick(note)}>
             <div className="notes-header">
-              <button>x</button>
+              <button onClick={(event) => deleteNote(event, note.id)}>x</button>
             </div>
             <h2>{note.title}</h2>
             <p>{note.content}</p>
