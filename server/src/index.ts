@@ -16,10 +16,19 @@ app.get("/api/notes", async (req, res) => {
 
 app.post("/api/notes", async (req, res) => {
   const { title, content } = req.body;
-  const note = await prisma.note.create({
-    data: { title, content },
-  });
-  res.json(note);
+
+  if (!title || !content) {
+    return res.status(400).send("title and content fields required");
+  }
+
+  try {
+    const note = await prisma.note.create({
+      data: { title, content },
+    });
+    res.json(note);
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
 });
 
 app.listen(5000, () => {
